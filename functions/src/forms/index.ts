@@ -11,12 +11,12 @@ app.post<"/", unknown, unknown, { name: string }>("/", async (req, res) => {
     id: crypto.randomUUID(),
   });
 
-  const _doc = await db.collection(DB_STRUCT.col.name).add({
+  const docRef = await db.collection(DB_STRUCT.col.name).add({
     name: req.body.name,
   });
 
-  await _doc.update({ id: _doc.id });
-  const doc = await db.doc(_doc.path).get();
+  await docRef.update({ id: docRef.id });
+  const doc = await db.doc(docRef.path).get();
 
   res.send(doc.data());
 });
@@ -36,6 +36,15 @@ app.get("/:id", async (req, res) => {
 // add form data
 app.post("/:id", async (req, res) => {
   functions.logger.info("Insert to form!");
+  const docRef = await await db.collection(DB_STRUCT.col.name).doc().get();
+
+  if (!docRef.data()) {
+    res.status(400).send({
+      message: `Form ${req.params.id} does not exist`,
+      name: "BadRequest",
+    });
+    return;
+  }
 
   const formData = await db
     .collection(DB_STRUCT.col.name)

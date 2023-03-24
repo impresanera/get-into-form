@@ -1,3 +1,4 @@
+import "source-map-support/register";
 import { form } from "./forms";
 
 // Start writing functions
