@@ -1,5 +1,15 @@
 {
   "projects": {
     "default": "get-into-form"
-  }
+  },
+  "targets": {
+    "get-into-form": {
+      "hosting": {
+        "get-into-form": [
+          "get-into-form"
+        ]
+      }
+    }
+  },
+  "etags": {}
 }
