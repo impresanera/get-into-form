@@ -1,7 +1,8 @@
 import "source-map-support/register";
-import { form } from "./forms";
+import { forms } from "./forms";
+import { getIsFirstUser } from "./auth";
 
 // Start writing functions
 // https://firebase.google.com/docs/functions/typescript
 
-export { form };
+export { forms, getIsFirstUser as firstUser };
