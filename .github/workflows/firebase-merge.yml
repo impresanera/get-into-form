@@ -1,0 +1,47 @@
+name: Deploy to Firebase Functions and Hosting on merge
+
+on:
+  push:
+    branches:
+      - main
+# env:
+# CI: false
+
+jobs:
+  build_and_deploy_functions_on_merge:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Download deps
+        working-directory: functions
+        run: npm install
+
+      - name: Deploy
+        run: npx firebase-tools deploy --only functions:api_stg
+        env:
+          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+          NODE_ENV: staging
+
+  build_and_deploy_hosting_on_merge:
+    if: "${{ github.event.pull_request.head.repo.full_name == github.repository }}"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Install dependencies
+        working-directory: hosting/app
+        run: npm ci
+
+      - name: Build
+        working-directory: hosting/app
+        run: npm run build:stg
+
+      - uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: "${{ secrets.GITHUB_TOKEN }}"
+          firebaseServiceAccount: "${{ secrets.FIREBASE_SERVICE_ACCOUNT_GET_INTO_FORM }}"
+          projectId: get-into-form
+          channelId: live
+          target: get-into-form-stg
+          entryPoint: hosting/app

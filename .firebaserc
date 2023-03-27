@@ -7,6 +7,9 @@
       "hosting": {
         "get-into-form": [
           "get-into-form"
+        ],
+        "get-into-form-stg": [
+          "get-into-form-stg"
         ]
       }
     }
