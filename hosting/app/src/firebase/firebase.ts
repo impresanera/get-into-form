@@ -3,7 +3,7 @@ import { initializeApp, FirebaseError } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
 import * as Auth from "firebase/auth";
 import { Result } from "..";
-import { config } from "../config";
+import { appendEnv, config } from "../config";
 
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
@@ -22,10 +22,14 @@ const firebaseConfig = {
 
 export function getFunctionUrl(): string {
   if (import.meta.env.VITE_ENV === "development") {
-    return `http://127.0.0.1:5001/${firebaseConfig.projectId}/us-central1`;
+    return `http://127.0.0.1:5001/${
+      firebaseConfig.projectId
+    }/us-central1/${appendEnv("api")}-`;
   }
 
-  return `https://us-central1-${firebaseConfig.projectId}.cloudfunctions.net`;
+  return `https://us-central1-${
+    firebaseConfig.projectId
+  }.cloudfunctions.net/${appendEnv("api")}-`;
 }
 
 // Initialize Firebase

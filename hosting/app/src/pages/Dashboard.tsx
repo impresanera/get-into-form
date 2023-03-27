@@ -11,6 +11,14 @@ import { Result } from "..";
 import { getFunctionUrl, signOut } from "../firebase/firebase";
 import { useCurrentUser } from "../firebase/User";
 import { useEffect, useMemo, useState } from "react";
+import {
+  FormDataType,
+  getForms,
+  getFormData,
+  createForms,
+  FormType,
+  deleteForms,
+} from "../api/forms";
 
 export function Dashboard() {
   const navigate = useNavigate();
@@ -53,6 +61,12 @@ export function Dashboard() {
   };
 
   useEffect(() => {
+    if (!user) {
+      navigate("/");
+    }
+  }, [user]);
+
+  useEffect(() => {
     queryClient.invalidateQueries({ queryKey: ["form-data", formDataId] });
   }, [formDataId]);
 
@@ -88,58 +102,6 @@ export function Dashboard() {
       </div>
     </div>
   );
-}
-
-type FormType = { name: string; id: string };
-type CreateFormType = { name: string };
-
-async function getForms(): Promise<Result<FormType[]>> {
-  try {
-    const res = await axios.get<FormType[]>(getFunctionUrl() + "/forms");
-    return { ok: res.data };
-  } catch (error) {
-    return { error };
-  }
-}
-
-async function getFormData(formId: string): Promise<Result<FormDataType[]>> {
-  if (formId === "") {
-    return { ok: [] };
-  }
-
-  try {
-    const res = await axios.get<FormDataType[]>(
-      `${getFunctionUrl()}/forms/${formId}/form-data`
-    );
-    return { ok: res.data };
-  } catch (error) {
-    return { error };
-  }
-}
-
-async function deleteForms(id: string): Promise<Result<FormType[]>> {
-  try {
-    const res = await axios.delete<FormType[]>(
-      `${getFunctionUrl()}/forms/${id}`
-    );
-    return { ok: res.data };
-  } catch (error) {
-    return { error };
-  }
-}
-
-async function createForms(
-  createFormData: CreateFormType
-): Promise<Result<FormType>> {
-  try {
-    const res = await axios.post<FormType>(
-      getFunctionUrl() + "/forms",
-      createFormData
-    );
-    return { ok: res.data };
-  } catch (error) {
-    return { error };
-  }
 }
 
 const formColHelper = createColumnHelper<FormType>();
@@ -239,11 +201,6 @@ function FormList(prop: {
     </div>
   );
 }
-
-type FormDataType = {
-  id: string;
-  [key: string]: unknown;
-};
 const formDataColHelper = createColumnHelper<FormDataType>();
 
 function FormDataList(prop: { formData: FormDataType[]; loading?: boolean }) {
