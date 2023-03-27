@@ -4,6 +4,7 @@ const envStruct = {
   development: "dev",
   staging: "stg",
   production: "prd",
+  testing: "uat",
 } as const;
 
 export const appendEnv = <T extends string>(

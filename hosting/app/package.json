@@ -4,8 +4,12 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "tsc && vite build",
+    "dev": "VITE_ENV=staging vite",
+    "build": "VITE_ENV=production tsc && vite build",
+    "build:prd": "VITE_ENV=production tsc && vite build",
+    "build:dev": "VITE_ENV=development tsc && vite build",
+    "build:stg": "VITE_ENV=staging tsc && vite build",
+    "build:uat": "VITE_ENV=testing tsc && vite build",
     "vite:build": "vite build",
     "preview": "vite preview"
   },

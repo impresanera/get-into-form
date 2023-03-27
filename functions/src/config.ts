@@ -2,6 +2,7 @@ const env = {
   development: "dev",
   staging: "stg",
   production: "prd",
+  testing: "uat", // user assertion test
 } as const;
 
 export const appendEnv = <T extends string>(

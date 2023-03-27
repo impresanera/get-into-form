@@ -8,3 +8,4 @@ import { getIsFirstUser, newUserSignUp } from "./auth";
 export const api_prd = { forms, firstUser: getIsFirstUser, newUserSignUp };
 export const api_stg = { forms, firstUser: getIsFirstUser, newUserSignUp };
 export const api_dev = { forms, firstUser: getIsFirstUser, newUserSignUp };
+export const api_uat = { forms, firstUser: getIsFirstUser, newUserSignUp };
