@@ -60,4 +60,3 @@ jobs:
           channelId: live
           projectId: get-into-form
           target: get-into-form
-          entryPoint: ./hosting/app
