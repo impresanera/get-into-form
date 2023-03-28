@@ -11,15 +11,30 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
+      - uses: actions/setup-node@v1
+        with:
+          node-version: 16.x
+
       - name: Download deps
         working-directory: functions
         run: npm install
 
-      - name: Deploy
-        run: npx firebase-tools deploy --only functions:api_uat
+      - name: Build cloud functions
+        working-directory: functions
+        run: npm run build
+
+      - name: Create SA key
+        run: echo '${{ secrets.FIREBASE_SERVICE_ACCOUNT }}' > $HOME/gcloud.json
+
+      - name: Deploy Cloud Functions
+        run: export FIREBASE_SERVICE_ACCOUNT=$HOME/gcloud.json && npx firebase-tools deploy --only functions:api_uat --json
         env:
-          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
           NODE_ENV: testing
+
+      # - name: Deploy
+      #   run: npx firebase-tools deploy --only functions:api_uat
+      #   env:
+      #     FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
 
   build_and_deploy_hosting_on_pr:
     if: "${{ github.event.pull_request.head.repo.full_name == github.repository }}"
