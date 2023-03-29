@@ -9,9 +9,9 @@
     "target": "es2017",
     "noImplicitAny": true,
     "strictNullChecks": true,
-    "types": ["node"]
+    "types": ["node", "./src"]
   },
   "compileOnSave": true,
-  "include": ["src/**/*.ts"],
+  "include": ["src/**/*.ts", "src/**/*d.ts"],
   "exclude": ["node_modules"]
 }

@@ -36,5 +36,29 @@
       "enabled": true
     },
     "singleProjectMode": true
-  }
+  },
+  "hosting": [
+    {
+      "public": "hosting/app/dist",
+      "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
+      "target": "get-into-form",
+      "rewrites": [
+        {
+          "source": "**",
+          "destination": "/index.html"
+        }
+      ]
+    },
+    {
+      "public": "hosting/app/dist",
+      "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
+      "target": "get-into-form-stg",
+      "rewrites": [
+        {
+          "source": "**",
+          "destination": "/index.html"
+        }
+      ]
+    }
+  ]
 }

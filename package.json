@@ -1,0 +1,21 @@
+{
+  "name": "get_into_form",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "emulators:start": "firebase emulators:start --only functions,firestore,hosting,auth"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/micaiah-effiong/get-into-form.git"
+  },
+  "author": "Micah Effong",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/micaiah-effiong/get-into-form/issues"
+  },
+  "homepage": "https://github.com/micaiah-effiong/get-into-form#readme",
+  "dependencies": {},
+  "devDependencies": {}
+}

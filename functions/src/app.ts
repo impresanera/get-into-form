@@ -1,8 +1,11 @@
 import * as functions from "firebase-functions";
 import * as express from "express";
 import type { Response, Request, NextFunction } from "express";
+import * as cors from "cors";
 
 const app = express();
+
+app.use(cors());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
