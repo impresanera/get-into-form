@@ -41,7 +41,7 @@
     {
       "public": "hosting/app/dist",
       "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
-      "target": "get-into-form",
+      "target": "impresaner-forms",
       "rewrites": [
         {
           "source": "**",
@@ -52,7 +52,7 @@
     {
       "public": "hosting/app/dist",
       "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
-      "target": "get-into-form-stg",
+      "target": "impresaner-forms-stg",
       "rewrites": [
         {
           "source": "**",

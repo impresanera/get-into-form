@@ -1,15 +1,15 @@
 {
   "projects": {
-    "default": "get-into-form"
+    "default": "impresaner-forms"
   },
   "targets": {
-    "get-into-form": {
+    "impresaner-forms": {
       "hosting": {
-        "get-into-form": [
-          "get-into-form"
+        "impresaner-forms": [
+          "impresaner-forms"
         ],
-        "get-into-form-stg": [
-          "get-into-form-stg"
+        "impresaner-forms-stg": [
+          "impresaner-forms-stg"
         ]
       }
     }

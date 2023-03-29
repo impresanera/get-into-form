@@ -11,13 +11,12 @@ import { appendEnv, config } from "../config";
 // Your web app's Firebase configuration
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
-  apiKey: "AIzaSyBH3lZKDi4rDGftxnkWulAKejkvKz879nw",
-  authDomain: "get-into-form.firebaseapp.com",
-  projectId: "get-into-form",
-  storageBucket: "get-into-form.appspot.com",
-  messagingSenderId: "671261208280",
-  appId: "1:671261208280:web:b34d2b37ba05f7928a31ad",
-  measurementId: "G-NS9VPREQV2",
+  apiKey: "AIzaSyBQ-VvHbJbY1QKRnilK8cYclPB6dnHBGjo",
+  authDomain: "impresaner-forms.firebaseapp.com",
+  projectId: "impresaner-forms",
+  storageBucket: "impresaner-forms.appspot.com",
+  messagingSenderId: "824913390931",
+  appId: "1:824913390931:web:6e7d5fe387b5a0755d05a6",
 };
 
 export function getFunctionUrl(): string {

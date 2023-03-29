@@ -54,4 +54,4 @@ jobs:
         with:
           repoToken: "${{ secrets.GITHUB_TOKEN }}"
           firebaseServiceAccount: "${{ secrets.FIREBASE_SERVICE_ACCOUNT_GET_INTO_FORM }}"
-          projectId: get-into-form
+          projectId: impresaner-forms
