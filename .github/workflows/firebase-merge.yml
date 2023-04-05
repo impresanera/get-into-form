@@ -29,7 +29,7 @@ jobs:
         run: echo '${{ secrets.FIREBASE_SERVICE_ACCOUNT_GET_INTO_FORM }}' > $HOME/gcloud.json
 
       - name: Deploy Cloud Functions
-        run: export GOOGLE_APPLICATION_CREDENTIALS=$HOME/gcloud.json && npx firebase-tools deploy --only functions:api_stg --json
+        run: export GOOGLE_APPLICATION_CREDENTIALS=$HOME/gcloud.json && npx firebase-tools deploy --only functions:api_stg
         env:
           NODE_ENV: staging
 
