@@ -30,7 +30,6 @@ jobs:
 
       - name: Deploy Cloud Functions
         run: export GOOGLE_APPLICATION_CREDENTIALS=$HOME/gcloud.json && npx firebase-tools deploy --only functions:api_stg --json
-        working-directory: functions
         env:
           NODE_ENV: staging
 
