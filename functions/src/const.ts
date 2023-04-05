@@ -1,8 +1,11 @@
+import { appendEnv } from "./config";
+
 export const DB_STRUCT = {
   col: {
-    name: "forms",
+    name: appendEnv("forms"),
     names: {
-      forms: "forms",
+      forms: appendEnv("forms"),
+      users: appendEnv("users"),
     },
     doc: {
       col: {

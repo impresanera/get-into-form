@@ -1,5 +1,18 @@
 {
   "projects": {
-    "default": "get-into-form"
-  }
+    "default": "impresaner-forms"
+  },
+  "targets": {
+    "impresaner-forms": {
+      "hosting": {
+        "impresaner-forms": [
+          "impresaner-forms"
+        ],
+        "impresaner-forms-stg": [
+          "impresaner-forms-stg"
+        ]
+      }
+    }
+  },
+  "etags": {}
 }

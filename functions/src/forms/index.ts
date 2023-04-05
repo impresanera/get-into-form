@@ -1,5 +1,5 @@
 import * as functions from "firebase-functions";
-import * as crypto from "crypto";
+import { FieldValue } from "firebase-admin/firestore";
 import { app } from "../app";
 import { db } from "../firebase";
 import { DB_STRUCT } from "../const";
@@ -8,11 +8,12 @@ import { DB_STRUCT } from "../const";
 app.post<"/", unknown, unknown, { name: string }>("/", async (req, res) => {
   functions.logger.info("Create from", {
     ...req.body,
-    id: crypto.randomUUID(),
   });
 
+  //
   const docRef = await db.collection(DB_STRUCT.col.name).add({
     name: req.body.name,
+    createdAt: FieldValue.serverTimestamp(),
   });
 
   await docRef.update({ id: docRef.id });
@@ -21,13 +22,42 @@ app.post<"/", unknown, unknown, { name: string }>("/", async (req, res) => {
   res.send(doc.data());
 });
 
-// get all form data for a specific form
+app.get("/", async (req, res) => {
+  functions.logger.info("Get all forms");
+  const formData = await db.collection(DB_STRUCT.col.names.forms).get();
+
+  res.send(formData.docs.map((e) => e.data()));
+});
+
 app.get("/:id", async (req, res) => {
-  functions.logger.info("Get from by id");
+  functions.logger.info("Get form by id");
   const formData = await db
-    .collection(DB_STRUCT.col.name)
+    .collection(DB_STRUCT.col.names.forms)
     .doc(req.params.id)
-    .collection("form_data")
+    .get();
+
+  res.send(formData.data());
+});
+
+app.delete("/:id", async (req, res) => {
+  functions.logger.info("delete form by id");
+  const form = await db
+    .collection(DB_STRUCT.col.names.forms)
+    .doc(req.params.id);
+
+  const data = (await form.get()).data();
+  await form.delete();
+
+  res.send(data);
+});
+
+// get all form data for a specific form
+app.get("/:id/form-data", async (req, res) => {
+  functions.logger.info("Get form data by id");
+  const formData = await db
+    .collection(DB_STRUCT.col.names.forms)
+    .doc(req.params.id)
+    .collection(DB_STRUCT.col.doc.col.names.form_data)
     .get();
 
   res.send(formData.docs.map((e) => e.data()));
@@ -36,7 +66,10 @@ app.get("/:id", async (req, res) => {
 // add form data
 app.post("/:id", async (req, res) => {
   functions.logger.info("Insert to form!");
-  const docRef = await await db.collection(DB_STRUCT.col.name).doc().get();
+  const docRef = await db
+    .collection(DB_STRUCT.col.names.forms)
+    .doc(req.params.id)
+    .get();
 
   if (!docRef.data()) {
     res.status(400).send({
@@ -47,13 +80,18 @@ app.post("/:id", async (req, res) => {
   }
 
   const formData = await db
-    .collection(DB_STRUCT.col.name)
+    .collection(DB_STRUCT.col.names.forms)
     .doc(req.params.id)
-    .collection(DB_STRUCT.col.doc.col.name)
-    .add(req.body);
+    .collection(DB_STRUCT.col.doc.col.names.form_data)
+    .add({
+      ...req.body,
+      createdAt: FieldValue.serverTimestamp(),
+    });
+  await formData.update({ id: formData.id });
+
   const data = (await formData.get()).data();
 
   res.send(data);
 });
 
-export const form = functions.https.onRequest(app);
+export const forms = functions.https.onRequest(app);
