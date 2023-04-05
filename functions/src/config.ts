@@ -7,6 +7,6 @@ const env = {
 
 export const appendEnv = <T extends string>(
   str: T
-): `${T}_${typeof env[typeof process.env.NODE_ENV]}` => {
+): `${T}_${(typeof env)[typeof process.env.NODE_ENV]}` => {
   return `${str}_${env[process.env.NODE_ENV]}`;
 };
