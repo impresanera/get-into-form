@@ -19,10 +19,6 @@ jobs:
         working-directory: functions
         run: npm install
 
-      - name: Build cloud functions
-        working-directory: functions
-        run: npm run build
-
       - name: Create SA key
         run: echo '${{ secrets.FIREBASE_SERVICE_ACCOUNT_GET_INTO_FORM }}' > $HOME/gcloud.json
 
