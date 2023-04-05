@@ -5,11 +5,11 @@
   "type": "module",
   "scripts": {
     "dev": "VITE_ENV=staging vite",
-    "build": "VITE_ENV=production tsc && vite build",
-    "build:prd": "VITE_ENV=production tsc && vite build",
-    "build:dev": "VITE_ENV=development tsc && vite build",
-    "build:stg": "VITE_ENV=staging tsc && vite build",
-    "build:uat": "VITE_ENV=testing tsc && vite build",
+    "build": "tsc && VITE_ENV=production vite build",
+    "build:prd": "tsc && VITE_ENV=production vite build",
+    "build:dev": "tsc && VITE_ENV=development vite build",
+    "build:stg": "tsc && VITE_ENV=staging vite build",
+    "build:uat": "tsc && VITE_ENV=testing vite build",
     "vite:build": "vite build",
     "preview": "vite preview"
   },
