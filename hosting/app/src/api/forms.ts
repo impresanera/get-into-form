@@ -17,9 +17,9 @@ const basePaths = {
 export async function getForms(): Promise<Result<FormType[]>> {
   try {
     const res = await axios.get<FormType[]>(getFunctionUrl() + basePaths.forms);
-    return { ok: res.data };
+    return { value: res.data, ok: true };
   } catch (error) {
-    return { error };
+    return { error, ok: false };
   }
 }
 
@@ -27,16 +27,16 @@ export async function getFormData(
   formId: string
 ): Promise<Result<FormDataType[]>> {
   if (formId === "") {
-    return { ok: [] };
+    return { value: [], ok: true };
   }
 
   try {
     const res = await axios.get<FormDataType[]>(
       `${getFunctionUrl()}${basePaths.forms}/${formId}/form-data`
     );
-    return { ok: res.data };
+    return { value: res.data, ok: true };
   } catch (error) {
-    return { error };
+    return { error, ok: false };
   }
 }
 
@@ -45,9 +45,9 @@ export async function deleteForms(id: string): Promise<Result<FormType[]>> {
     const res = await axios.delete<FormType[]>(
       `${getFunctionUrl()}${basePaths.forms}/${id}`
     );
-    return { ok: res.data };
+    return { value: res.data, ok: true };
   } catch (error) {
-    return { error };
+    return { error, ok: false };
   }
 }
 
@@ -59,17 +59,20 @@ export async function createForms(
       getFunctionUrl() + basePaths.forms,
       createFormData
     );
-    return { ok: res.data };
+    return { value: res.data, ok: true };
   } catch (error) {
-    return { error };
+    return { error, ok: false };
   }
 }
 
 export const getFirstUser = async (): Promise<Result<boolean>> => {
   try {
+    const firstUrl = getFunctionUrl();
+    console.log({ firstUrl });
+
     const res = await axios.get(getFunctionUrl() + basePaths.firstUser);
-    return { ok: res.data };
+    return { value: res.data, ok: true };
   } catch (error) {
-    return { error };
+    return { error, ok: false };
   }
 };

@@ -1,5 +1,4 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import {
   useReactTable,
@@ -7,8 +6,7 @@ import {
   getCoreRowModel,
   flexRender,
 } from "@tanstack/react-table";
-import { Result } from "..";
-import { getFunctionUrl, signOut } from "../firebase/firebase";
+import { signOut } from "../firebase/firebase";
 import { useCurrentUser } from "../firebase/User";
 import { useEffect, useMemo, useState } from "react";
 import {
@@ -34,7 +32,7 @@ export function Dashboard() {
     queryFn: () => getFormData(formDataId),
     onSuccess: (data) => {
       if (data.ok) {
-        setFormData(data.ok);
+        setFormData(data.value);
       }
     },
   });
@@ -89,7 +87,10 @@ export function Dashboard() {
       <div>
         {getFormQuery.data?.ok && (
           <div>
-            <FormList forms={getFormQuery.data.ok} setFormId={setFormDataId} />
+            <FormList
+              forms={getFormQuery.data.value}
+              setFormId={setFormDataId}
+            />
           </div>
         )}
 

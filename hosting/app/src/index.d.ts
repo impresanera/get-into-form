@@ -1,10 +1,10 @@
 type NotNull<T> = T extends null ? never : T;
-export type Result<T, E = unknown> =
+export type Result<T, E = any> =
   | {
-      ok: T;
-      error?: undefined;
+      error: E; //NotNull<E>;
+      ok: false;
     }
   | {
-      ok?: undefined;
-      error: E; //NotNull<E>;
+      value: T;
+      ok: true;
     };
