@@ -5,25 +5,24 @@ import * as Auth from "firebase/auth";
 import { Result } from "..";
 import { appendEnv, config } from "../config";
 
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
-
-// Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
-  apiKey: "AIzaSyBQ-VvHbJbY1QKRnilK8cYclPB6dnHBGjo",
-  authDomain: "impresaner-forms.firebaseapp.com",
-  projectId: "impresaner-forms",
-  storageBucket: "impresaner-forms.appspot.com",
-  messagingSenderId: "824913390931",
-  appId: "1:824913390931:web:6e7d5fe387b5a0755d05a6",
+  apiKey: config.VITE_API_KEY,
+  authDomain: config.VITE_AUTH_DOMAIN,
+  projectId: config.VITE_PROJECT_ID,
+  storageBucket: config.VITE_STORAGE_BUCKET,
+  messagingSenderId: config.VITE_MESSAGING_SENDER_ID,
+  appId: config.VITE_APP_ID,
 };
 
+const url = new URL(import.meta.url);
+const { protocol, hostname } = new URL(import.meta.url);
+const localhost = `${protocol}//${hostname}:5001`;
 export function getFunctionUrl(): string {
   if (import.meta.env.VITE_ENV === "development") {
-    return `http://127.0.0.1:5001/${
-      firebaseConfig.projectId
-    }/us-central1/${appendEnv("api")}-`;
+    console.log("URL: ", localhost, url);
+    return `${localhost}/${firebaseConfig.projectId}/us-central1/${appendEnv(
+      "api"
+    )}-`;
   }
 
   return `https://us-central1-${
@@ -59,10 +58,11 @@ export async function emailPasswordSignUp(
       });
     }
 
-    return { ok: res.user };
+    return { ok: true, value: res.user };
   } catch (error: unknown) {
     if (error instanceof FirebaseError) {
       return {
+        ok: false,
         error: {
           code: error.code,
           message: error.message,
@@ -71,7 +71,7 @@ export async function emailPasswordSignUp(
       };
     }
 
-    return { error };
+    return { error, ok: false };
   }
 }
 
@@ -84,10 +84,11 @@ export async function emailPasswordLogin(
     console.log({ res });
 
     return {
-      ok: res.user,
+      ok: true,
+      value: res.user,
     };
   } catch (error) {
-    return { error: error as FirebaseError };
+    return { error: error as FirebaseError, ok: false };
   }
 }
 
@@ -96,9 +97,10 @@ export async function signOut(): Promise<Result<null, FirebaseError>> {
     const res = await Auth.signOut(auth);
     console.log({ res });
     return {
-      ok: null,
+      ok: true,
+      value: null,
     };
   } catch (error) {
-    return { error: error as FirebaseError };
+    return { error: error as FirebaseError, ok: false };
   }
 }
