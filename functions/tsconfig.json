@@ -9,7 +9,8 @@
     "target": "es2017",
     "noImplicitAny": true,
     "strictNullChecks": true,
-    "types": ["node", "./src"]
+    "types": ["node", "./src"],
+    "esModuleInterop": true
   },
   "compileOnSave": true,
   "include": ["src/**/*.ts", "src/**/*d.ts"],
