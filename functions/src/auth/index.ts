@@ -1,6 +1,6 @@
 import { auth } from "firebase-admin";
 import { db, functions } from "../firebase";
-import * as cors from "cors";
+import cors from "cors";
 import { DB_STRUCT } from "../const";
 import { FieldValue } from "firebase-admin/firestore";
 
