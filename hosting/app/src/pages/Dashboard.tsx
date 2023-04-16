@@ -161,8 +161,6 @@ function FormList(prop: {
       formColHelper.accessor("name", {}),
       formColHelper.accessor("link", {
         cell: (val) => {
-          console.log({ val });
-
           return (
             <CopyTiClipBoardBox text={val.getValue()}>
               &lt; &gt;
@@ -275,7 +273,7 @@ function FormList(prop: {
                       <button
                         className="font-medium text-blue-600 dark:text-blue-500"
                         onClick={() =>
-                          deleteFormMutation.mutate(rowGroup.original.id)
+                          deleteFormMutation.mutate(cell.row.original.id)
                         }
                       >
                         Remove
