@@ -28,7 +28,6 @@ export const newUserSignUp = functions.auth.user({}).onCreate(async (u) => {
 
   await db.collection(DB_STRUCT.col.names.users).doc(u.uid).create({
     id: u.uid,
-    name: "",
     createdAt: FieldValue.serverTimestamp(),
   });
 });
