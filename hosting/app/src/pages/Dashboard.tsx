@@ -1,14 +1,15 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useNavigation } from "react-router-dom";
 import {
   useReactTable,
   createColumnHelper,
   getCoreRowModel,
   flexRender,
+  HeaderGroup,
 } from "@tanstack/react-table";
 import { signOut } from "../firebase/firebase";
 import { useCurrentUser } from "../firebase/User";
-import { useEffect, useMemo, useState } from "react";
+import { PropsWithChildren, useEffect, useMemo, useRef, useState } from "react";
 import {
   FormDataType,
   getForms,
@@ -16,20 +17,27 @@ import {
   createForms,
   FormType,
   deleteForms,
+  getFormLink,
 } from "../api/forms";
+import { BasicButton } from "../components/Buttons";
+import { SortButton } from "../components/Buttons/SortButton";
+import { toast } from "react-hot-toast";
 
 export function Dashboard() {
   const navigate = useNavigate();
-  const [user] = useCurrentUser();
+  const [user, userLoading] = useCurrentUser();
   const queryClient = useQueryClient();
   const [formData, setFormData] = useState<FormDataType[]>([]);
-  const [formDataId, setFormDataId] = useState<string>("");
+  const [formInfo, setFormInfo] = useState<FormType>({
+    id: "",
+    name: "",
+  });
 
-  const getFormQuery = useQuery({ queryKey: ["forms"], queryFn: getForms });
+  const getFormQuery = useQuery(["forms"], getForms);
 
   const getFormDataQuery = useQuery({
-    queryKey: ["form-data", formDataId],
-    queryFn: () => getFormData(formDataId),
+    queryKey: ["form-data", formInfo],
+    queryFn: () => getFormData(formInfo.id || ""),
     onSuccess: (data) => {
       if (data.ok) {
         setFormData(data.value);
@@ -37,7 +45,7 @@ export function Dashboard() {
     },
   });
 
-  const createFromMutation = useMutation({
+  const createFormMutation = useMutation({
     mutationKey: ["createForm"],
     mutationFn: createForms,
     onSuccess: () => {
@@ -55,31 +63,44 @@ export function Dashboard() {
     const values = Object.fromEntries(new FormData(e.currentTarget)) as {
       name: string;
     };
-    await createFromMutation.mutateAsync(values);
+
+    createFormMutation.mutate(values);
   };
 
   useEffect(() => {
-    if (!user) {
+    if (!user && !userLoading) {
       navigate("/");
     }
   }, [user]);
 
   useEffect(() => {
-    queryClient.invalidateQueries({ queryKey: ["form-data", formDataId] });
-  }, [formDataId]);
+    queryClient.invalidateQueries({ queryKey: ["form-data", formInfo] });
+  }, [formInfo]);
 
   return (
     <div>
       <div>Dashboard</div>
-      <button onClick={handleSignout}>Logout</button>
+      <BasicButton type="button" onClick={handleSignout}>
+        Logout
+      </BasicButton>
       <div>{user?.displayName}</div>
       Create From
       <div>
         <form onSubmit={handleSubmit}>
-          <input type="text" name="name" />
-          <button type="submit" disabled={createFromMutation.isLoading}>
-            Create Form
-          </button>
+          <div className="flex gap-3">
+            <input
+              className="shadow appearance-none border rounded w-min py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+              id="name"
+              type="text"
+              name="name"
+              required
+              inputMode="text"
+              placeholder="Form name"
+            />
+            <BasicButton type="submit" loading={createFormMutation.isLoading}>
+              Create Form
+            </BasicButton>
+          </div>
         </form>
       </div>
       <div>Forms</div>
@@ -89,35 +110,70 @@ export function Dashboard() {
           <div>
             <FormList
               forms={getFormQuery.data.value}
-              setFormId={setFormDataId}
+              setFormInfo={setFormInfo}
             />
           </div>
         )}
-
+        <hr />
         <div>
-          <FormDataList
-            formData={formData}
-            loading={getFormDataQuery.isLoading}
-          />
+          {formData.length ? (
+            <FormDataList
+              name={formInfo.name}
+              formData={formData}
+              loading={getFormDataQuery.isLoading}
+            />
+          ) : null}
         </div>
       </div>
     </div>
   );
 }
 
-const formColHelper = createColumnHelper<FormType>();
+type FormListTableType = {
+  action: string;
+  link: string;
+} & FormType;
+
+const formColHelper = createColumnHelper<FormListTableType>();
 // const col = ;
 function FormList(prop: {
   forms: FormType[];
-  setFormId?: (id: string) => void;
+  setFormInfo?: (form: FormType) => void;
 }) {
-  const table = useReactTable({
+  const formList = useMemo<FormListTableType[]>(() => {
+    let formList: FormListTableType[] = [];
+
+    const forms = prop.forms;
+
+    for (let i = 0; i < prop.forms.length; i++) {
+      formList.push({
+        action: "",
+        id: forms[i].id,
+        name: forms[i].name,
+        link: getFormLink(forms[i].id),
+      });
+    }
+
+    return formList;
+  }, []);
+  const table = useReactTable<FormListTableType>({
     columns: [
-      formColHelper.accessor("id", {}),
       formColHelper.accessor("name", {}),
+      formColHelper.accessor("link", {
+        cell: (val) => {
+          console.log({ val });
+
+          return (
+            <CopyTiClipBoardBox text={val.getValue()}>
+              &lt; &gt;
+            </CopyTiClipBoardBox>
+          );
+        },
+      }),
+      formColHelper.accessor("action", {}),
     ],
     getCoreRowModel: getCoreRowModel(),
-    data: prop.forms,
+    data: formList,
   });
 
   const queryClient = useQueryClient();
@@ -149,52 +205,95 @@ function FormList(prop: {
   // getFormData;
 
   return (
-    <div>
-      <table>
-        <thead>
-          {table.getHeaderGroups().map((headerGroup) => (
+    <div className="relative overflow-x-auto shadow-md sm:rounded-lg">
+      <table className="w-full text-sm text-left text-gray-500 dark:text-gray-400 table-auto">
+        <caption className="p-5 text-lg font-semibold text-left text-gray-900 bg-white dark:text-white dark:bg-gray-800">
+          Forms
+          <p className="mt-1 text-sm font-normal text-gray-500 dark:text-gray-400 place-content-center"></p>
+        </caption>
+        <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+          {...table.getHeaderGroups().map((headerGroup) => (
             <tr key={headerGroup.id}>
-              {headerGroup.headers.map((header) => (
-                <th key={header.id}>
-                  {header.isPlaceholder
-                    ? null
-                    : flexRender(
-                        header.column.columnDef.header,
-                        header.getContext()
-                      )}
-                </th>
-              ))}
+              {headerGroup.headers.map((header) => {
+                if (
+                  header.column.id === "action" ||
+                  header.column.id === "link"
+                ) {
+                  return (
+                    <th key={header.id} scope="col" className="px-6 py-3">
+                      {header.isPlaceholder
+                        ? null
+                        : flexRender(
+                            header.column.columnDef.header,
+                            header.getContext()
+                          )}
+                    </th>
+                  );
+                }
+
+                return (
+                  <th key={header.id} scope="col" className="px-6 py-3">
+                    <div className="flex items-center">
+                      {header.isPlaceholder
+                        ? null
+                        : flexRender(
+                            header.column.columnDef.header,
+                            header.getContext()
+                          )}
+                      <SortButton />
+                    </div>
+                  </th>
+                );
+              })}
             </tr>
           ))}
         </thead>
         <tbody>
           {table.getRowModel().rows.map((rowGroup) => (
-            <tr key={rowGroup.id}>
-              {rowGroup.getVisibleCells().map((cell) => (
-                <td key={cell.id}>
-                  {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                </td>
-              ))}
+            <tr
+              className="bg-white border-b dark:bg-gray-800 dark:border-gray-700"
+              key={rowGroup.id}
+            >
+              {rowGroup.getVisibleCells().map((cell) => {
+                if (cell.column.id === "action") {
+                  return (
+                    <td
+                      scope="row"
+                      className="px-6 py-4 flex gap-3 font-medium text-gray-900 whitespace-nowrap dark:text-white"
+                      key={cell.id}
+                    >
+                      <button
+                        className="font-medium text-blue-600 dark:text-blue-500"
+                        onClick={() => {
+                          prop.setFormInfo &&
+                            prop.setFormInfo(rowGroup.original);
+                        }}
+                      >
+                        view
+                      </button>
 
-              <td>
-                <button
-                  onClick={() => {
-                    prop.setFormId && prop.setFormId(rowGroup.original.id);
-                  }}
-                >
-                  view
-                </button>
-              </td>
-              <td>
-                <button
-                  onClick={() =>
-                    deleteFormMutation.mutate(rowGroup.original.id)
-                  }
-                >
-                  {" "}
-                  -{" "}
-                </button>
-              </td>
+                      <button
+                        className="font-medium text-blue-600 dark:text-blue-500"
+                        onClick={() =>
+                          deleteFormMutation.mutate(rowGroup.original.id)
+                        }
+                      >
+                        Remove
+                      </button>
+                    </td>
+                  );
+                }
+
+                return (
+                  <td
+                    key={cell.id}
+                    scope="row"
+                    className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white"
+                  >
+                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                  </td>
+                );
+              })}
             </tr>
           ))}
         </tbody>
@@ -202,9 +301,14 @@ function FormList(prop: {
     </div>
   );
 }
+
 const formDataColHelper = createColumnHelper<FormDataType>();
 
-function FormDataList(prop: { formData: FormDataType[]; loading?: boolean }) {
+function FormDataList(prop: {
+  formData: FormDataType[];
+  loading?: boolean;
+  name: string;
+}) {
   const cols = useMemo(() => {
     return Array.from(
       new Set(prop.formData.map((elt) => Object.keys(elt)).flat())
@@ -231,24 +335,29 @@ function FormDataList(prop: { formData: FormDataType[]; loading?: boolean }) {
             )._seconds * 1000
           ).toDateString();
         },
+        header: "created at",
       }),
     ],
     getCoreRowModel: getCoreRowModel(),
     data: prop.formData,
   });
 
-  console.log(prop.loading, "loading");
-
   return (
-    <div>
+    <div className="relative overflow-x-auto shadow-md sm:rounded-lg">
       {prop.loading && <>Loading</>}
       {!prop.loading && prop.formData && (
-        <table>
-          <thead>
+        <table className="w-full text-sm text-left text-gray-500 dark:text-gray-400 table-auto">
+          {prop.name && (
+            <caption className="p-5 text-lg font-semibold text-left text-gray-900 bg-white dark:text-white dark:bg-gray-800">
+              {prop.name} - Form data
+              <p className="mt-1 text-sm font-normal text-gray-500 dark:text-gray-400 place-content-center"></p>
+            </caption>
+          )}
+          <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
             {table.getHeaderGroups().map((headerGroup) => (
               <tr key={headerGroup.id}>
                 {headerGroup.headers.map((header) => (
-                  <th key={header.id}>
+                  <th key={header.id} className="px-6 py-3">
                     {header.isPlaceholder
                       ? null
                       : flexRender(
@@ -262,9 +371,16 @@ function FormDataList(prop: { formData: FormDataType[]; loading?: boolean }) {
           </thead>
           <tbody>
             {table.getRowModel().rows.map((rowGroup) => (
-              <tr key={rowGroup.id}>
+              <tr
+                key={rowGroup.id}
+                className="bg-white border-b dark:bg-gray-800 dark:border-gray-700"
+              >
                 {rowGroup.getVisibleCells().map((cell) => (
-                  <td key={cell.id}>
+                  <td
+                    key={cell.id}
+                    scope="row"
+                    className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white"
+                  >
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                   </td>
                 ))}
@@ -274,5 +390,32 @@ function FormDataList(prop: { formData: FormDataType[]; loading?: boolean }) {
         </table>
       )}
     </div>
+  );
+}
+
+function CopyTiClipBoardBox({
+  children,
+  ...prop
+}: PropsWithChildren<{ text: string }>) {
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  const copy = () => {
+    if (!inputRef.current) {
+      return;
+    }
+    inputRef.current.select();
+    inputRef.current.setSelectionRange(0, Number.MAX_SAFE_INTEGER);
+    navigator.clipboard.writeText(inputRef.current.value);
+
+    toast("Link copied");
+  };
+
+  return (
+    <>
+      <button onClick={() => copy()} {...prop}>
+        {children}
+      </button>
+      <input type="text" ref={inputRef} hidden defaultValue={prop.text} />
+    </>
   );
 }
