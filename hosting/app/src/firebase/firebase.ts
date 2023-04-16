@@ -1,6 +1,5 @@
-// Import the functions you need from the SDKs you need
 import { initializeApp, FirebaseError } from "firebase/app";
-import { getAnalytics } from "firebase/analytics";
+import { Analytics, getAnalytics } from "firebase/analytics";
 import * as Auth from "firebase/auth";
 import { Result } from "..";
 import { appendEnv, config } from "../config";
@@ -14,12 +13,10 @@ const firebaseConfig = {
   appId: config.VITE_APP_ID,
 };
 
-const url = new URL(import.meta.url);
-const { protocol, hostname } = new URL(import.meta.url);
-const localhost = `${protocol}//${hostname}:5001`;
 export function getFunctionUrl(): string {
-  if (import.meta.env.VITE_ENV === "development") {
-    console.log("URL: ", localhost, url);
+  if (config.VITE_ENV === "development") {
+    const { protocol, hostname } = new URL(import.meta.url);
+    const localhost = `${protocol}//${hostname}:5001`;
     return `${localhost}/${firebaseConfig.projectId}/us-central1/${appendEnv(
       "api"
     )}-`;
@@ -36,11 +33,17 @@ const auth = Auth.getAuth();
 
 export const firebaseAuth = auth;
 
-if (import.meta.env.VITE_ENV === "development") {
+let fireAnalytics: Analytics;
+if (config.VITE_ENV === "development") {
   Auth.connectAuthEmulator(auth, config.VITE_AUTH_EM_URL);
 }
 
-export const fireAnalytics = getAnalytics(fireApp);
+if (config.VITE_ENV === "production") {
+  fireAnalytics = getAnalytics(fireApp);
+}
+
+Auth.setPersistence(auth, { type: "LOCAL" });
+
 export async function emailPasswordSignUp(
   email: string,
   password: string,
@@ -56,6 +59,7 @@ export async function emailPasswordSignUp(
       await Auth.updateProfile(res.user, {
         displayName,
       });
+      await res.user.reload();
     }
 
     return { ok: true, value: res.user };
@@ -104,3 +108,5 @@ export async function signOut(): Promise<Result<null, FirebaseError>> {
     return { error: error as FirebaseError, ok: false };
   }
 }
+
+export { fireAnalytics };
