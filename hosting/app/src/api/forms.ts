@@ -76,3 +76,7 @@ export const getFirstUser = async (): Promise<Result<boolean>> => {
     return { error, ok: false };
   }
 };
+
+export function getFormLink(id: string): string {
+  return `${getFunctionUrl()}${basePaths.forms}/${id}`;
+}
