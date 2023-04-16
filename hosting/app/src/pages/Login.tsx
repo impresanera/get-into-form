@@ -3,11 +3,13 @@ import { emailPasswordLogin } from "../firebase/firebase";
 import { toast } from "react-hot-toast";
 import { firebaseAuthErrorMsg } from "../firebase/errors";
 import { BasicButton } from "../components/Buttons";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useCurrentUser } from "../firebase/User";
 
 export function Login() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState<boolean>(false);
+  const [user] = useCurrentUser();
 
   const handleSubmit: React.FormEventHandler<HTMLFormElement> = async (
     event
@@ -35,6 +37,12 @@ export function Login() {
       toast(errMsg || "Something went wrong");
     }
   };
+
+  useEffect(() => {
+    if (user) {
+      navigate("/dashboard");
+    }
+  }, [user]);
   return (
     <div className="w-full h-screen grid place-content-center">
       <form
