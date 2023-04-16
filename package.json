@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "emulators:start": "firebase emulators:start --only functions,firestore,hosting,auth"
+    "emulators:start": "NODE_ENV=development firebase emulators:start --only functions,firestore,hosting,auth"
   },
   "repository": {
     "type": "git",
