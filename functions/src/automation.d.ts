@@ -21,6 +21,7 @@ export type MAILGUN_EMAIL_AUTOMATION = {
   };
   meta: {
     email_source: { type: "TEMPLATE" | "TEXT" | "HTML"; value: string };
+    isEu?: boolean;
     receiver:
       | { type: "FIXED"; address: string }
       | { type: "FORM_DATA"; form_field: string };

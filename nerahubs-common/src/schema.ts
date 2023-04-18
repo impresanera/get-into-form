@@ -37,7 +37,8 @@ export const createMailgunFormAutomation = z.object({
     .optional()
     .nullable()
     .default(null),
-  trigger: z.array(z.enum(["ON_DATA_ADDED"])),
+  trigger: z.array(z.enum(["ON_DATA_ADDED"])).nonempty(),
+  isEu: z.boolean().optional(),
 });
 // .refine((val) => {
 //   if (val.receiverType === "FIXED") {

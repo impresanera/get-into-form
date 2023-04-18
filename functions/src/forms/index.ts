@@ -123,7 +123,6 @@ app.post(
   ) => {
     functions.logger.info("create automation", req.body);
     const payload = req.body;
-    console.log({ payload });
     const receiver =
       payload.receiverType === "FIXED"
         ? {
@@ -142,6 +141,7 @@ app.post(
           value: payload.emailSourceValue,
         },
         receiver: receiver,
+        isEu: payload.isEu,
       },
       name: payload.name,
       payload: {
@@ -201,7 +201,10 @@ function executeAutomations(
   form: DS["forms"][0],
   formData: DS["forms"][number]["form_data"][number]
 ) {
-  automation.map((automation) => {
+  automation.forEach((automation) => {
+    if (!automation.trigger.includes("ON_DATA_ADDED")) {
+      return;
+    }
     if (automation.type === "EMAIL" && automation.provider === "MAILGUN") {
       // run email automation
       let to: string;
@@ -213,8 +216,6 @@ function executeAutomations(
           .form_field as keyof typeof formData;
         to = formData[form_field];
       }
-
-      functions.logger.log("automation.map", form.id, formData.id, automation);
 
       runMailgunAutomation(
         {
@@ -230,6 +231,7 @@ function executeAutomations(
           email_data_value: automation.meta.email_source.value,
           formDataId: formData.id,
           formId: form.id,
+          isEu: !!automation.meta.isEu,
         }
       );
     }

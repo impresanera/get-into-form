@@ -20,6 +20,7 @@ type RunMailgunAutomationArgs = [
     api_key: string;
     email_data_type: MAILGUN_EMAIL_AUTOMATION["meta"]["email_source"]["type"];
     email_data_value: string;
+    isEu: boolean;
   }
 ];
 
@@ -31,7 +32,7 @@ export async function runMailgunAutomation(
   const mg = mailgun.client({
     username: "api",
     key: meta.api_key,
-    url: "https://api.eu.mailgun.net",
+    url: meta.isEu ? "https://api.eu.mailgun.net" : undefined,
   });
 
   const docPath = `${DB_STRUCT.col.names.forms}/${meta.formId}/form_data/${meta.formDataId}`;
