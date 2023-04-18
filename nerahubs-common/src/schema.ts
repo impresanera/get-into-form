@@ -2,7 +2,7 @@ import { z } from "zod";
 
 const isRequiredMessage = (name: string): string => `[${name} is required]`;
 
-export const createFormAutomation = z.object({
+export const createMailgunFormAutomation = z.object({
   type: z.enum(["EMAIL"], { required_error: isRequiredMessage("type") }),
   provider: z.enum(["MAILGUN"], {
     required_error: isRequiredMessage("provider"),
@@ -47,4 +47,6 @@ export const createFormAutomation = z.object({
 //   }
 // });
 
-export type CreateEmailAutomationPayload = z.infer<typeof createFormAutomation>;
+export type CreateMailgunEmailAutomationPayload = z.infer<
+  typeof createMailgunFormAutomation
+>;
