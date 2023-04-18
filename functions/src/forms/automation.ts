@@ -1,22 +1,24 @@
 import formData from "form-data";
 import Mailgun from "mailgun.js";
 import { db } from "../firebase";
-import { appendEnv } from "../config";
 import Client from "mailgun.js/client";
 import { MAILGUN_EMAIL_AUTOMATION, DS } from "../automation";
+import { DB_STRUCT } from "../const";
 // add automation to form with form id
 
 type RunMailgunAutomationArgs = [
   {
     from: string;
     to: string;
+    subject: string;
+    replyTo: string | null;
   },
   {
     formId: string;
     formDataId: string;
     domain: string;
     api_key: string;
-    email_data_type: MAILGUN_EMAIL_AUTOMATION["meta"]["email_data"]["type"];
+    email_data_type: MAILGUN_EMAIL_AUTOMATION["meta"]["email_source"]["type"];
     email_data_value: string;
   }
 ];
@@ -29,12 +31,11 @@ export async function runMailgunAutomation(
   const mg = mailgun.client({
     username: "api",
     key: meta.api_key,
+    url: "https://api.eu.mailgun.net",
   });
 
-  const docPath = `${appendEnv("forms")}/${meta.formId}/form_data/${
-    meta.formDataId
-  }`;
-  const formPath = `${appendEnv("forms")}/${meta.formId}`;
+  const docPath = `${DB_STRUCT.col.names.forms}/${meta.formId}/form_data/${meta.formDataId}`;
+  const formPath = `${DB_STRUCT.col.names.forms}/${meta.formId}`;
   const doc = (await db.doc(docPath).get()).data();
   const formInfo = (await db.doc(formPath).get()).data() as DS["forms"][0];
 
@@ -50,6 +51,8 @@ export async function runMailgunAutomation(
         from: payload.from,
         to: payload.to,
         html: meta.email_data_value,
+        subject: payload.subject,
+        replyTo: payload.replyTo,
       });
       break;
     case "TEMPLATE":
@@ -60,6 +63,8 @@ export async function runMailgunAutomation(
         to: payload.to,
         template: meta.email_data_value,
         variables: doc,
+        subject: payload.subject,
+        replyTo: payload.replyTo,
       });
       break;
     case "TEXT":
@@ -69,6 +74,8 @@ export async function runMailgunAutomation(
         from: payload.from,
         to: payload.to,
         text: meta.email_data_value,
+        subject: payload.subject,
+        replyTo: payload.replyTo,
       });
       break;
     default:
@@ -76,58 +83,61 @@ export async function runMailgunAutomation(
   }
 }
 
-type MailgunMessageTextArgs = {
+type MailgunMessage = {
   mg: Client;
   to: string;
   from: string;
-  text: string;
   domain: string;
+  subject: string;
+  replyTo: string | null;
 };
+
+type MailgunMessageTextArgs = MailgunMessage & { text: string };
 async function mailgunText(args: MailgunMessageTextArgs) {
   args.mg.messages.create(args.domain, {
     from: args.from,
     to: args.to,
     text: args.text,
+    "h:Reply-To": args.replyTo || undefined,
   });
 }
 
-type MailgunMessageHTMLArgs = {
-  mg: Client;
-  to: string;
-  from: string;
-  html: string;
-  domain: string;
-};
+type MailgunMessageHTMLArgs = MailgunMessage & { html: string };
 async function mailgunHtml(args: MailgunMessageHTMLArgs) {
   args.mg.messages.create(args.domain, {
     from: args.from,
     to: args.to,
     html: args.html,
+    subject: args.subject,
+    "h:Reply-To": args.replyTo || undefined,
   });
 }
 
-type MailgunMessageTemplateArgs = {
-  mg: Client;
-  to: string;
-  from: string;
+type MailgunMessageTemplateArgs = MailgunMessage & {
   template: string;
-  domain: string;
   variables: Record<string, string>;
 };
 async function mailgunTemplate(args: MailgunMessageTemplateArgs) {
   args.mg.messages.create(args.domain, {
     from: args.from,
     to: args.to,
-    "h:X-Mailgun-Variables": args.variables,
+    "h:X-Mailgun-Variables": JSON.stringify(args.variables),
     template: args.template,
+    "h:Reply-To": args.replyTo || undefined,
+    subject: args.subject,
   });
 }
-// mg.c.messages.create('sandbox-123.mailgun.org', {
-//     from: "Excited User <mailgun@sandbox-123.mailgun.org>",
-//     to: ["test@example.com"],
-//     subject: "Hello",
-//     text: "Testing some Mailgun awesomness!",
-//     html: "<h1>Testing some Mailgun awesomness!</h1>"
+
+// new Mailgun(formData)
+//   .client({
+//     username: "api",
+//     key: "<>",
+//     url: "https://api.eu.mailgun.net",
 //   })
-//   .then(msg => console.log(msg)) // logs response data
-//   .catch(err => console.error(err)); // logs any error
+//   .messages.create("mg.nerahubs.com", {
+//     template: "application_successful",
+//     "h:X-Mailgun-Variables": JSON.stringify({ name: "Micah Effiong" }),
+//     subject: "Test",
+//     to: "softwares@impresanera.com",
+//     from: "Mailgun Sandbox <postmaster@mg.nerahubs.com>",
+//   });

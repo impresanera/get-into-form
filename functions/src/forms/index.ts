@@ -4,9 +4,14 @@ import { app } from "../app";
 import { db } from "../firebase";
 import { DB_STRUCT } from "../const";
 import type { Request, Response } from "express";
-import { appendEnv } from "../config";
 import { Automation, DS } from "../automation";
 import { runMailgunAutomation } from "./automation";
+import { validate } from "./schema-validator";
+import {
+  CreateMailgunEmailAutomationPayload,
+  createMailgunFormAutomation,
+} from "nerahubs-common";
+import { z } from "zod";
 
 // create form
 app.post<"/", Record<string, string>, null, { name: string }>(
@@ -101,29 +106,100 @@ app.post("/:id", async (req: Request, res: Response) => {
   res.send(data);
 });
 
+// add auto mation
+app.post(
+  "/:id/automation",
+  validate(
+    z
+      .object({
+        body: createMailgunFormAutomation,
+        params: z.object({ id: z.string() }),
+      })
+      .strip()
+  ),
+  async (
+    req: Request<{ id: string }, unknown, CreateMailgunEmailAutomationPayload>,
+    res: Response
+  ) => {
+    functions.logger.info("create automation", req.body);
+    const payload = req.body;
+    console.log({ payload });
+    const receiver =
+      payload.receiverType === "FIXED"
+        ? {
+            type: payload.receiverType,
+            address: payload.receiver,
+          }
+        : {
+            type: payload.receiverType,
+            form_field: payload.receiver,
+          };
+
+    const createAutomationData: Omit<Automation, "id"> = {
+      meta: {
+        email_source: {
+          type: payload.emailSourceType,
+          value: payload.emailSourceValue,
+        },
+        receiver: receiver,
+      },
+      name: payload.name,
+      payload: {
+        sender: payload.sender,
+        subject: payload.emailSubject,
+        replyTo: payload.replyTo || null,
+      },
+      secret: {
+        api_key: payload.apiKey,
+        domain: payload.domain,
+      },
+      provider: payload.provider,
+      trigger: payload.trigger,
+      type: payload.type,
+    };
+
+    const docRef = await db
+      .collection(`${DB_STRUCT.col.names.forms}/${req.params.id}/automation`)
+      .add(createAutomationData);
+
+    const doc = await docRef.get();
+
+    return res.json(doc.data());
+  }
+);
+
 export const forms = functions.https.onRequest(app);
 
 export const formAutomation = functions.firestore
-  .document(`${appendEnv("forms")}/{formId}/form_data/{formDataId}`)
-  .onCreate(async (snap, _context) => {
+  .document(`${DB_STRUCT.col.names.forms}/{formId}/form_data/{formDataId}`)
+  .onCreate(async (snap) => {
     const newValue = snap.data() as DS["forms"][0]["form_data"][0];
     functions.logger.log("runing automation", { newValue });
     // get parent automation
-    const form = (
-      await db.doc(`${appendEnv("forms")}/{formId}`).get()
-    ).data() as DS["forms"][0];
+    newValue.id = snap.id;
+    const _form = await snap.ref.parent.parent?.path;
+    functions.logger.log("finding path", { _form });
+
+    if (!_form) {
+      return;
+    }
+
+    const form = (await db.doc(_form).get()).data() as DS["forms"][0];
+    const formAutomation = (
+      await db.collection(_form + "/automation").get()
+    ).docs.map((doc) => doc.data()) as DS["forms"][0]["automation"];
 
     if (!form) {
       return;
     }
 
-    executeAutomations(form.automation, form, newValue);
+    executeAutomations(formAutomation, form, newValue);
   });
 
 function executeAutomations(
   automation: Automation[],
   form: DS["forms"][0],
-  formData: DS["forms"][0]["form_data"][0]
+  formData: DS["forms"][number]["form_data"][number]
 ) {
   automation.map((automation) => {
     if (automation.type === "EMAIL" && automation.provider === "MAILGUN") {
@@ -138,16 +214,20 @@ function executeAutomations(
         to = formData[form_field];
       }
 
+      functions.logger.log("automation.map", form.id, formData.id, automation);
+
       runMailgunAutomation(
         {
-          from: automation.meta.sender,
-          to,
+          from: automation.payload.sender,
+          to: to,
+          subject: automation.payload.subject,
+          replyTo: automation.payload.replyTo,
         },
         {
           api_key: automation.secret.api_key,
           domain: automation.secret.domain,
-          email_data_type: automation.meta.email_data.type,
-          email_data_value: automation.meta.email_data.value,
+          email_data_type: automation.meta.email_source.type,
+          email_data_value: automation.meta.email_source.value,
           formDataId: formData.id,
           formId: form.id,
         }

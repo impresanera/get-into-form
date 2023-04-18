@@ -14,9 +14,13 @@ export type MAILGUN_EMAIL_AUTOMATION = {
   type: "EMAIL";
   provider: "MAILGUN";
   secret: { api_key: string; domain: string };
-  meta: {
-    email_data: { type: "TEMPLATE" | "TEXT" | "HTML"; value: string };
+  payload: {
     sender: string;
+    subject: string;
+    replyTo: string | null;
+  };
+  meta: {
+    email_source: { type: "TEMPLATE" | "TEXT" | "HTML"; value: string };
     receiver:
       | { type: "FIXED"; address: string }
       | { type: "FORM_DATA"; form_field: string };
