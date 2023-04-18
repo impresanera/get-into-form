@@ -1,1 +1,4 @@
-export { CreateEmailAutomationPayload, createFormAutomation } from "./schema";
+export {
+  CreateMailgunEmailAutomationPayload,
+  createMailgunFormAutomation,
+} from "./schema";
