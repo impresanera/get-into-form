@@ -1,6 +1,7 @@
 import axios from "axios";
 import { Result } from "..";
 import { getFunctionUrl } from "../firebase/firebase";
+import { CreateMailgunEmailAutomationPayload } from "shared";
 
 export type FormType = { name: string; id: string };
 export type CreateFormType = { name: string };
@@ -12,6 +13,9 @@ export type FormDataType = {
 const basePaths = {
   forms: "forms",
   firstUser: "firstUser",
+  addFormAutomation(formId: string) {
+    return `forms/${formId}/automation`;
+  },
 } as const;
 
 export async function getForms(): Promise<Result<FormType[]>> {
@@ -67,9 +71,6 @@ export async function createForms(
 
 export const getFirstUser = async (): Promise<Result<boolean>> => {
   try {
-    const firstUrl = getFunctionUrl();
-    console.log({ firstUrl });
-
     const res = await axios.get(getFunctionUrl() + basePaths.firstUser);
     return { value: res.data, ok: true };
   } catch (error) {
@@ -80,3 +81,18 @@ export const getFirstUser = async (): Promise<Result<boolean>> => {
 export function getFormLink(id: string): string {
   return `${getFunctionUrl()}${basePaths.forms}/${id}`;
 }
+
+export const createEmailMailgunAutomation = async (
+  formId: string,
+  payload: CreateMailgunEmailAutomationPayload
+) => {
+  try {
+    const res = await axios.post(
+      getFunctionUrl() + basePaths.addFormAutomation(formId),
+      payload
+    );
+    return { value: res.data, ok: true };
+  } catch (error) {
+    return { error, ok: false };
+  }
+};
