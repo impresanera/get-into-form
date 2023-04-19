@@ -8,8 +8,7 @@
   ],
   "scripts": {
     "build": "tsc",
-    "build:watch": "tsc --watch",
-    "postinstall": "tsc"
+    "build:watch": "tsc --watch"
   },
   "author": "",
   "license": "ISC",
