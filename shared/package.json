@@ -9,7 +9,7 @@
   "scripts": {
     "build": "tsc",
     "build:watch": "tsc --watch",
-    "preinstall": "npm install && npm run build"
+    "postinstall": "tsc"
   },
   "author": "",
   "license": "ISC",
