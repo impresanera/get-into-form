@@ -13,6 +13,7 @@ jobs:
       - name: Set Up NodeJS
         uses: actions/setup-node@v2
         with:
+          cache-dependency-path: ./shared/package-lock.json
           node-version: "16"
           cache: npm
 
