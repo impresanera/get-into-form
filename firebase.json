@@ -14,6 +14,8 @@
         ".runtimeconfig.json"
       ],
       "predeploy": [
+        "npm --prefix \"$RESOURCE_DIR/../shared\" ci",
+
         "npm --prefix \"$RESOURCE_DIR\" run lint",
         "npm --prefix \"$RESOURCE_DIR\" run build"
       ]
@@ -47,7 +49,8 @@
           "source": "**",
           "destination": "/index.html"
         }
-      ]
+      ],
+      "predeploy": ["npm --prefix \"$RESOURCE_DIR/../../shared\" ci"]
     },
     {
       "public": "hosting/app/dist",
@@ -58,7 +61,8 @@
           "source": "**",
           "destination": "/index.html"
         }
-      ]
+      ],
+      "predeploy": ["npm --prefix \"$RESOURCE_DIR/../../shared\" ci"]
     }
   ]
 }
