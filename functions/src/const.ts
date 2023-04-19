@@ -49,6 +49,6 @@ type PathIntoRecord<
   [K in keyof T as T[K] extends any[] | number | string | boolean | symbol
     ? K
     : T[K] extends Record<string, any>
-    ? `${K & string}${Delemiter}${PathIntoRecord<T[K]> & string}`
+    ? `${K & string}${Delemiter}${PathIntoRecord<T[K], Delemiter> & string}`
     : never]: any;
 };
