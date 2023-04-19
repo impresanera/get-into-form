@@ -12,6 +12,8 @@ export const validate =
       });
       return next();
     } catch (error) {
-      return res.status(400).json((error as Zod.ZodError).issues);
+      const issues = (error as Zod.ZodError).issues;
+
+      return res.status(400).json(issues.map((issue) => issue.message));
     }
   };

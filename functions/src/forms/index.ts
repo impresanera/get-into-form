@@ -10,7 +10,7 @@ import { validate } from "./schema-validator";
 import {
   CreateMailgunEmailAutomationPayload,
   createMailgunFormAutomation,
-} from "nerahubs-common";
+} from "shared";
 import { z } from "zod";
 
 // create form
@@ -21,7 +21,6 @@ app.post<"/", Record<string, string>, null, { name: string }>(
       ...req.body,
     });
 
-    //
     const docRef = await db.collection(DB_STRUCT.col.name).add({
       name: req.body.name,
       createdAt: FieldValue.serverTimestamp(),
@@ -124,14 +123,14 @@ app.post(
     functions.logger.info("create automation", req.body);
     const payload = req.body;
     const receiver =
-      payload.receiverType === "FIXED"
+      payload.receiverSource === "FIXED"
         ? {
-            type: payload.receiverType,
-            address: payload.receiver,
+            type: payload.receiverSource,
+            address: payload.receiverValue,
           }
         : {
-            type: payload.receiverType,
-            form_field: payload.receiver,
+            type: payload.receiverSource,
+            form_field: payload.receiverValue,
           };
 
     const createAutomationData: Omit<Automation, "id"> = {
