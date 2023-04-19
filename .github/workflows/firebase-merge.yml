@@ -18,8 +18,7 @@ jobs:
           node-version: 16.x
 
       - name: Download deps
-        working-directory: functions
-        run: npm install
+        run: cd functions && npm install
 
       - name: Create SA key
         run: echo '${{ secrets.FIREBASE_SERVICE_ACCOUNT_GET_INTO_FORM }}' > $HOME/gcloud.json

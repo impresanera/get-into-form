@@ -5,12 +5,12 @@ import { Result } from "..";
 import { appendEnv, config } from "../config";
 
 const firebaseConfig = {
-  apiKey: config.VITE_API_KEY,
-  authDomain: config.VITE_AUTH_DOMAIN,
-  projectId: config.VITE_PROJECT_ID,
-  storageBucket: config.VITE_STORAGE_BUCKET,
-  messagingSenderId: config.VITE_MESSAGING_SENDER_ID,
-  appId: config.VITE_APP_ID,
+  apiKey: "AIzaSyBQ-VvHbJbY1QKRnilK8cYclPB6dnHBGjo",
+  authDomain: "impresaner-forms.firebaseapp.com",
+  projectId: "impresaner-forms",
+  storageBucket: "impresaner-forms.appspot.com",
+  messagingSenderId: "824913390931",
+  appId: "1:824913390931:web:6e7d5fe387b5a0755d05a6",
 };
 
 export function getFunctionUrl(): string {
