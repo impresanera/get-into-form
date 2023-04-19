@@ -8,7 +8,8 @@
   ],
   "scripts": {
     "build": "tsc",
-    "build:watch": "tsc --watch"
+    "build:watch": "tsc --watch",
+    "preinstall": "npm install && npm run build"
   },
   "author": "",
   "license": "ISC",
