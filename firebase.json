@@ -14,10 +14,10 @@
         ".runtimeconfig.json"
       ],
       "predeploy": [
-        "npm --prefix \"$RESOURCE_DIR/../../shared\" ci",
-        "npm --prefix \"$RESOURCE_DIR/../../shared\" run build",
+        "npm --prefix \"$RESOURCE_DIR/../shared\" ci",
+        "npm --prefix \"$RESOURCE_DIR/../shared\" run build",
 
-        "npm pack \"$RESOURCE_DIR/../../shared\"",
+        "npm pack \"$RESOURCE_DIR/../shared\"",
         "mv shared-*.tgz \"$RESOURCE_DIR/shared.tgz\"",
         "npm --prefix \"$RESOURCE_DIR\" install \"$RESOURCE_DIR/shared.tgz\"",
 
