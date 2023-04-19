@@ -8,9 +8,7 @@
   ],
   "scripts": {
     "build": "tsc",
-    "build:watch": "tsc --watch",
-    "postinstall": "npm run build",
-    "postbuild": "npm pack"
+    "build:watch": "tsc --watch"
   },
   "author": "",
   "license": "ISC",
