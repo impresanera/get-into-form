@@ -32,7 +32,7 @@ jobs:
 
       - name: Download deps
         working-directory: functions
-        run: npm install
+        run: npm ci
 
       - name: Create SA key
         run: echo '${{ secrets.FIREBASE_SERVICE_ACCOUNT_GET_INTO_FORM }}' > $HOME/gcloud.json
