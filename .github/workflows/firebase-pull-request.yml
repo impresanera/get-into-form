@@ -36,7 +36,20 @@ jobs:
 
       - name: Deploy Cloud Functions
         run: |
-          export GOOGLE_APPLICATION_CREDENTIALS=$HOME/gcloud.json 
+          export GOOGLE_APPLICATION_CREDENTIALS=$HOME/gcloud.json
+
+          cd functions
+
+          npm ci
+          npm run lint
+
+          mv ../shared/shared-1.0.0.tgz shared-1.0.0.tgz
+
+          npm install shared-1.0.0.tgz"
+          npm run build
+
+          cd ..
+
           echo NODE_ENV=testing > functions/.env
           mkdir -p functions/lib/.env
           npx firebase-tools deploy --only functions:api_uat
