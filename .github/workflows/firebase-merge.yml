@@ -8,9 +8,6 @@ on:
 # CI: false
 
 jobs:
-  pack_shared_lib:
-    uses: ./.github/workflows/bundle-shared-lib.yml
-
   build_and_deploy_functions_on_merge:
     runs-on: ubuntu-latest
     steps:
