@@ -38,8 +38,7 @@ jobs:
         run: |
           export GOOGLE_APPLICATION_CREDENTIALS=$HOME/gcloud.json 
           echo NODE_ENV=testing > functions/.env
-          mkdir -p functions/lib
-          echo NODE_ENV=testing > functions/lib/.env
+          npx firebase-tools use dev
           npx firebase-tools deploy --only functions:api_uat
 
   build_and_deploy_hosting_on_pr:
