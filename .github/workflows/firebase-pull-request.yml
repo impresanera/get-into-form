@@ -15,9 +15,21 @@ jobs:
         with:
           node-version: 16.x
 
+      - name: Bundle shared lib
+        working-directory: shared
+        run: |
+          echo *** INSTALLING deps ***
+          npm ci
+
+          echo *** BUILDING PACKAGE ***
+          npm run build
+
+          echo *** NPM PACK ***
+          npm pack
+
       - name: Download deps
         working-directory: functions
-        run: npm install
+        run: npm ci
 
       - name: Create SA key
         run: echo '${{ secrets.FIREBASE_SERVICE_ACCOUNT_GET_INTO_FORM }}' > $HOME/gcloud.json
@@ -27,23 +39,30 @@ jobs:
         env:
           NODE_ENV: testing
 
-      # - name: Deploy
-      #   run: npx firebase-tools deploy --only functions:api_uat
-      #   env:
-      #     FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
-
   build_and_deploy_hosting_on_pr:
     if: "${{ github.event.pull_request.head.repo.full_name == github.repository }}"
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
 
+      - name: Bundle shared lib
+        working-directory: shared
+        run: |
+          echo *** INSTALLING deps ***
+          npm ci
+
+          echo *** BUILDING PACKAGE ***
+          npm run build
+
+          echo *** NPM PACK ***
+          npm pack
+
       - name: Install dependencies
-        working-directory: hosting/app
+        working-directory: hosting
         run: npm ci
 
       - name: Build
-        working-directory: hosting/app
+        working-directory: hosting
         run: npm run build:uat
 
       - uses: FirebaseExtended/action-hosting-deploy@v0

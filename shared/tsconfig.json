@@ -1,18 +1,19 @@
 {
   "compilerOptions": {
-    "module": "commonjs",
+    "module": "CommonJS",
     "noImplicitReturns": true,
     "noUnusedLocals": true,
-    "outDir": "lib",
+    "outDir": "dist",
     "sourceMap": true,
     "strict": true,
     "target": "es2017",
     "noImplicitAny": true,
     "strictNullChecks": true,
-    "types": ["node", "./src"],
-    "esModuleInterop": true
+    "esModuleInterop": true,
+    "declaration": true,
+    "moduleResolution": "node"
   },
   "compileOnSave": true,
-  "include": ["src/**/*.ts", "src/**/*d.ts"],
+  "include": ["src"],
   "exclude": ["node_modules"]
 }

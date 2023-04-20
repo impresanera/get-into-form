@@ -1,15 +1,9 @@
-// Import the functions you need from the SDKs you need
 import { initializeApp, FirebaseError } from "firebase/app";
-import { getAnalytics } from "firebase/analytics";
+import { Analytics, getAnalytics } from "firebase/analytics";
 import * as Auth from "firebase/auth";
 import { Result } from "..";
 import { appendEnv, config } from "../config";
 
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
-
-// Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
   apiKey: "AIzaSyBQ-VvHbJbY1QKRnilK8cYclPB6dnHBGjo",
   authDomain: "impresaner-forms.firebaseapp.com",
@@ -20,10 +14,12 @@ const firebaseConfig = {
 };
 
 export function getFunctionUrl(): string {
-  if (import.meta.env.VITE_ENV === "development") {
-    return `http://127.0.0.1:5001/${
-      firebaseConfig.projectId
-    }/us-central1/${appendEnv("api")}-`;
+  if (config.VITE_ENV === "development") {
+    const { protocol, hostname } = new URL(import.meta.url);
+    const localhost = `${protocol}//${hostname}:5001`;
+    return `${localhost}/${firebaseConfig.projectId}/us-central1/${appendEnv(
+      "api"
+    )}-`;
   }
 
   return `https://us-central1-${
@@ -37,11 +33,17 @@ const auth = Auth.getAuth();
 
 export const firebaseAuth = auth;
 
-if (import.meta.env.VITE_ENV === "development") {
+let fireAnalytics: Analytics;
+if (config.VITE_ENV === "development") {
   Auth.connectAuthEmulator(auth, config.VITE_AUTH_EM_URL);
 }
 
-export const fireAnalytics = getAnalytics(fireApp);
+if (config.VITE_ENV === "production") {
+  fireAnalytics = getAnalytics(fireApp);
+}
+
+Auth.setPersistence(auth, { type: "LOCAL" });
+
 export async function emailPasswordSignUp(
   email: string,
   password: string,
@@ -57,12 +59,14 @@ export async function emailPasswordSignUp(
       await Auth.updateProfile(res.user, {
         displayName,
       });
+      await res.user.reload();
     }
 
-    return { ok: res.user };
+    return { ok: true, value: res.user };
   } catch (error: unknown) {
     if (error instanceof FirebaseError) {
       return {
+        ok: false,
         error: {
           code: error.code,
           message: error.message,
@@ -71,7 +75,7 @@ export async function emailPasswordSignUp(
       };
     }
 
-    return { error };
+    return { error, ok: false };
   }
 }
 
@@ -84,10 +88,11 @@ export async function emailPasswordLogin(
     console.log({ res });
 
     return {
-      ok: res.user,
+      ok: true,
+      value: res.user,
     };
   } catch (error) {
-    return { error: error as FirebaseError };
+    return { error: error as FirebaseError, ok: false };
   }
 }
 
@@ -96,9 +101,12 @@ export async function signOut(): Promise<Result<null, FirebaseError>> {
     const res = await Auth.signOut(auth);
     console.log({ res });
     return {
-      ok: null,
+      ok: true,
+      value: null,
     };
   } catch (error) {
-    return { error: error as FirebaseError };
+    return { error: error as FirebaseError, ok: false };
   }
 }
+
+export { fireAnalytics };

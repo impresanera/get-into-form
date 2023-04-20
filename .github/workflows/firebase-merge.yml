@@ -18,6 +18,18 @@ jobs:
           node-version: 16.x
 
       - name: Download deps
+        working-directory: shared
+        run: |
+          echo *** INSTALLING deps ***
+          npm ci
+
+          echo *** BUILDING PACKAGE ***
+          npm run build
+
+          echo *** NPM PACK ***
+          npm pack
+
+      - name: Download deps
         working-directory: functions
         run: npm install
 
@@ -29,27 +41,29 @@ jobs:
         env:
           NODE_ENV: staging
 
-      # - name: Download deps
-      #   working-directory: functions
-      #   run: npm install
-
-      # - name: Deploy
-      #   run: npx firebase-tools deploy --only functions:api_stg
-      #   env:
-      #     FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
-      #     NODE_ENV: staging
-
   build_and_deploy_hosting_on_merge:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
 
+      - name: Download deps
+        working-directory: shared
+        run: |
+          echo *** INSTALLING deps ***
+          npm ci
+
+          echo *** BUILDING PACKAGE ***
+          npm run build
+
+          echo *** NPM PACK ***
+          npm pack
+
       - name: Install dependencies
-        working-directory: hosting/app
+        working-directory: hosting
         run: npm ci
 
       - name: Build
-        working-directory: hosting/app
+        working-directory: hosting
         run: npm run build:stg
 
       - uses: FirebaseExtended/action-hosting-deploy@v0

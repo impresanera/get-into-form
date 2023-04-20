@@ -4,5 +4,5 @@ import { firebaseAuth } from "./firebase";
 export const useCurrentUser = () => {
   const [user, loading, error] = useAuthState(firebaseAuth);
 
-  return [user] as const;
+  return [user, loading] as const;
 };

@@ -1,6 +1,6 @@
 import { auth } from "firebase-admin";
 import { db, functions } from "../firebase";
-import * as cors from "cors";
+import cors from "cors";
 import { DB_STRUCT } from "../const";
 import { FieldValue } from "firebase-admin/firestore";
 
@@ -28,7 +28,6 @@ export const newUserSignUp = functions.auth.user({}).onCreate(async (u) => {
 
   await db.collection(DB_STRUCT.col.names.users).doc(u.uid).create({
     id: u.uid,
-    name: "",
     createdAt: FieldValue.serverTimestamp(),
   });
 });
