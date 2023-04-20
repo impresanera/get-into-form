@@ -15,7 +15,7 @@ jobs:
         with:
           node-version: 16.x
 
-      - name: Download deps
+      - name: Bundle shared lib
         working-directory: shared
         run: |
           echo *** INSTALLING deps ***
@@ -45,7 +45,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Download deps
+      - name: Bundle shared lib
         working-directory: shared
         run: |
           echo *** INSTALLING deps ***
