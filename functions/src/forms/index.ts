@@ -170,7 +170,7 @@ app.post(
 export const forms = functions.https.onRequest(app);
 export const hola = functions.https.onRequest((_, res) => {
   functions.logger.log("Hello function is running");
-  res.json({
+  res.send({
     message: "Hello, get into forms",
   });
   return;
