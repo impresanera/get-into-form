@@ -3,7 +3,6 @@ import { Analytics, getAnalytics } from "firebase/analytics";
 import * as Auth from "firebase/auth";
 import { Result } from "..";
 import { appendEnv, config } from "../config";
-
 const firebaseConfig = {
   apiKey: "AIzaSyBQ-VvHbJbY1QKRnilK8cYclPB6dnHBGjo",
   authDomain: "impresaner-forms.firebaseapp.com",
@@ -29,7 +28,9 @@ export function getFunctionUrl(): string {
 
 // Initialize Firebase
 export const fireApp = initializeApp(firebaseConfig);
-const auth = Auth.getAuth();
+const auth = Auth.initializeAuth(fireApp, {
+  persistence: [Auth.browserLocalPersistence, Auth.indexedDBLocalPersistence],
+});
 
 export const firebaseAuth = auth;
 
@@ -41,8 +42,6 @@ if (config.VITE_ENV === "development") {
 if (config.VITE_ENV === "production") {
   fireAnalytics = getAnalytics(fireApp);
 }
-
-Auth.setPersistence(auth, { type: "LOCAL" });
 
 export async function emailPasswordSignUp(
   email: string,
