@@ -168,6 +168,12 @@ app.post(
 );
 
 export const forms = functions.https.onRequest(app);
+export const hola = functions.https.onRequest((req, res) => {
+  functions.logger.log("Hello function is running");
+  res.json({
+    message: "Hello, get into forms",
+  });
+});
 
 export const formAutomation = functions.firestore
   .document(`${DB_STRUCT.col.names.forms}/{formId}/form_data/{formDataId}`)
