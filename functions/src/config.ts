@@ -1,3 +1,5 @@
+import { functions } from "./firebase";
+
 const env = {
   development: "dev",
   staging: "stg",
@@ -16,6 +18,9 @@ export const runInEnv = <T>(envKey: EnvKeys, fn: T) => {
   if (envKey === env[process.env.NODE_ENV]) {
     return fn;
   } else {
-    return () => "";
+    return () => {
+      functions.logger.info("Something went wrong");
+      throw new Error("mismatch environment");
+    };
   }
 };

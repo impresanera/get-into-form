@@ -12,15 +12,6 @@
         "firebase-debug.log",
         "firebase-debug.*.log",
         ".runtimeconfig.json"
-      ],
-      "predeploy": [
-        "npm --prefix \"$RESOURCE_DIR\" ci",
-        "npm --prefix \"$RESOURCE_DIR\" run lint",
-
-        "mv shared/shared-1.0.0.tgz \"$RESOURCE_DIR/shared-1.0.0.tgz\"",
-        "npm --prefix \"$RESOURCE_DIR\" install \"$RESOURCE_DIR/shared-1.0.0.tgz\"",
-
-        "npm --prefix \"$RESOURCE_DIR\" run build"
       ]
     }
   ],
