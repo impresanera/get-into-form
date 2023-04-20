@@ -18,6 +18,18 @@ jobs:
           node-version: 16.x
 
       - name: Download deps
+        working-directory: shared
+        run: |
+          echo *** INSTALLING deps ***
+          npm ci
+
+          echo *** BUILDING PACKAGE ***
+          npm run build
+
+          echo *** NPM PACK ***
+          npm pack
+
+      - name: Download deps
         working-directory: functions
         run: npm install
 
@@ -33,6 +45,18 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+
+      - name: Download deps
+        working-directory: shared
+        run: |
+          echo *** INSTALLING deps ***
+          npm ci
+
+          echo *** BUILDING PACKAGE ***
+          npm run build
+
+          echo *** NPM PACK ***
+          npm pack
 
       - name: Install dependencies
         working-directory: hosting

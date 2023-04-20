@@ -27,9 +27,6 @@ jobs:
           echo *** NPM PACK ***
           npm pack
 
-      - name: Check tarball
-        run: ls shared
-
       - name: Download deps
         working-directory: functions
         run: npm ci
@@ -59,9 +56,6 @@ jobs:
 
           echo *** NPM PACK ***
           npm pack
-
-      - name: Check tarball
-        run: ls shared
 
       - name: Install dependencies
         working-directory: hosting
