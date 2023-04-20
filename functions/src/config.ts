@@ -15,6 +15,7 @@ export const appendEnv = <T extends string>(str: T): `${T}_${EnvKeys}` => {
 };
 
 export const runInEnv = <T>(envKey: EnvKeys, fn: T) => {
+  console.log(env[process.env.NODE_ENV]);
   if (envKey === env[process.env.NODE_ENV]) {
     return fn;
   } else {
