@@ -25,6 +25,9 @@ import {
 } from "shared";
 import { BasicButton } from "../components/Buttons";
 import { BasicInput } from "../components/Input";
+import { IoMdLink, IoMdEye, IoMdRemoveCircle } from "react-icons/io";
+
+import { MdCloudSync } from "react-icons/md";
 
 type FormListTableType = {
   action: string;
@@ -61,8 +64,11 @@ export function FormList(prop: {
       formColHelper.accessor("link", {
         cell: (val) => {
           return (
-            <CopyTiClipBoardBox text={val.getValue()}>
-              &lt; &gt;
+            <CopyTiClipBoardBox
+              text={val.getValue()}
+              onClick={() => toast.success("Link copied")}
+            >
+              <IoMdLink className="text-xl font-bold" />
             </CopyTiClipBoardBox>
           );
         },
@@ -128,64 +134,80 @@ export function FormList(prop: {
           ))}
         </thead>
         <tbody>
-          {table.getRowModel().rows.map((rowGroup) => (
-            <tr className="bg-white border-b" key={rowGroup.id}>
-              {rowGroup.getVisibleCells().map((cell) => {
-                if (cell.column.id === "action") {
+          {table.getRowModel().rows.length ? (
+            table.getRowModel().rows.map((rowGroup) => (
+              <tr className="bg-white border-b" key={rowGroup.id}>
+                {rowGroup.getVisibleCells().map((cell) => {
+                  if (cell.column.id === "action") {
+                    return (
+                      <td
+                        scope="row"
+                        className="px-6 py-4 flex gap-3 font-medium text-gray-900 whitespace-nowrap"
+                        key={cell.id}
+                      >
+                        <button
+                          className="font-medium text-blue-600"
+                          onClick={() => {
+                            navigate(
+                              `/app/forms/${rowGroup.original.id}?name=${rowGroup.original.name}`
+                            );
+                          }}
+                          title="View data"
+                        >
+                          <IoMdEye className="text-xl font-bold" />
+                        </button>
+
+                        <button
+                          onClick={() =>
+                            deleteFormMutation.mutate(cell.row.original.id)
+                          }
+                          title="Remove item"
+                        >
+                          <IoMdRemoveCircle className="text-xl font-bold text-blue-600" />
+                        </button>
+
+                        <button
+                          className="text-xl font-bold text-blue-600"
+                          onClick={() => {
+                            prop.setAddAutomation &&
+                              prop.setAddAutomation({
+                                open: true,
+                                form: cell.row.original.id,
+                              });
+                          }}
+                          title="Add automation"
+                        >
+                          <MdCloudSync className="text-xl font-bold text-blue-600" />
+                        </button>
+                      </td>
+                    );
+                  }
                   return (
                     <td
-                      scope="row"
-                      className="px-6 py-4 flex gap-3 font-medium text-gray-900 whitespace-nowrap"
                       key={cell.id}
+                      scope="row"
+                      className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap"
                     >
-                      <button
-                        className="font-medium text-blue-600"
-                        onClick={() => {
-                          navigate(
-                            `/app/forms/${rowGroup.original.id}?name=${rowGroup.original.name}`
-                          );
-                        }}
-                      >
-                        view
-                      </button>
-
-                      <button
-                        className="font-medium text-blue-600"
-                        onClick={() =>
-                          deleteFormMutation.mutate(cell.row.original.id)
-                        }
-                      >
-                        Remove
-                      </button>
-
-                      <button
-                        className="font-medium text-blue-600"
-                        onClick={() => {
-                          prop.setAddAutomation &&
-                            prop.setAddAutomation({
-                              open: true,
-                              form: cell.row.original.id,
-                            });
-                        }}
-                      >
-                        add auto
-                      </button>
+                      {flexRender(
+                        cell.column.columnDef.cell,
+                        cell.getContext()
+                      )}
                     </td>
                   );
-                }
-
-                return (
-                  <td
-                    key={cell.id}
-                    scope="row"
-                    className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap"
-                  >
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                  </td>
-                );
-              })}
+                })}
+              </tr>
+            ))
+          ) : (
+            <tr className="bg-white border-b">
+              <td
+                scope="row"
+                className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap text-center"
+                colSpan={table.getFlatHeaders().length}
+              >
+                No forms
+              </td>
             </tr>
-          ))}
+          )}
         </tbody>
       </table>
     </div>
@@ -208,7 +230,6 @@ function EmailAutomationForm(prop: {
   const onSubmit: SubmitHandler<CreateMailgunEmailAutomationPayload> = async (
     values
   ) => {
-    console.log(values, prop.formId);
     await toast.promise(
       (async () => {
         const res = await createEmailMailgunAutomation(prop.formId, values);
@@ -218,7 +239,7 @@ function EmailAutomationForm(prop: {
         throw res.error;
       })(),
       {
-        loading: "Create mail gun automation ...",
+        loading: "Creating mailgun automation...",
         success: <b>Automation created</b>,
         error: (err) => {
           return <b>{err.message}</b>;
