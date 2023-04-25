@@ -17,6 +17,7 @@ import {
   FormType,
 } from "../api/forms";
 import { BasicButton } from "../components/Buttons";
+import { toast } from "react-hot-toast";
 
 export function Dashboard() {
   const navigate = useNavigate();
@@ -44,19 +45,38 @@ export function Dashboard() {
       name: string;
     };
 
-    createFormMutation.mutate(values);
+    toast.promise(createFormMutation.mutateAsync(values), {
+      loading: "Setting up form...",
+      success: <b>Form created</b>,
+      error: (err) => {
+        return <b>{err.message}</b>;
+      },
+    });
   };
 
   return (
     <div>
-      <div>Dashboard</div>
-      <BasicButton type="button" onClick={handleSignout}>
-        Logout
-      </BasicButton>
-      <div>{user?.displayName}</div>
-      Create From
-      <div>
-        <form onSubmit={handleSubmit}>
+      <div className="flex items-center p-3">
+        <div>Dashboard</div>
+        <div className="grid ml-auto">
+          <div>
+            <BasicButton
+              className="bg-red-500 px-1 py-1"
+              type="button"
+              onClick={handleSignout}
+            >
+              Logout
+            </BasicButton>
+          </div>
+          <div>{user?.displayName}</div>
+        </div>
+      </div>
+      <div className="p-3">
+        <form
+          onSubmit={handleSubmit}
+          className="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4 grid gap-3"
+        >
+          Create From
           <div className="flex gap-6">
             <input
               className="shadow appearance-none border rounded w-min py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
@@ -73,7 +93,11 @@ export function Dashboard() {
           </div>
         </form>
       </div>
-      <div>Forms</div>
+      <div>
+        <a className="font-medium text-blue-600" href="/app/forms">
+          Forms
+        </a>
+      </div>
       <div>{getFormQuery.isLoading && <div>Loading...</div>}</div>
       <div></div>
     </div>
