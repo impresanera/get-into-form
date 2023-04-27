@@ -4,16 +4,18 @@ import { getFirstUser } from "../api/forms";
 
 export function Home() {
   const [isFirstUser, setIsFirstUser] = useState<boolean>();
+  const [isLoadingFirstUser, setIsLoadingIsFirstUser] = useState<boolean>();
+  const [error, setError] = useState<Error>();
   const navigate = useNavigate();
-
-  console.log({ isFirstUser });
 
   useEffect(() => {
     const firstUserReq = async () => {
+      setIsLoadingIsFirstUser(true);
+
       const result = await getFirstUser();
 
-      if (!result.error) {
-        setIsFirstUser(result.ok);
+      if (result.ok) {
+        setIsFirstUser(result.value);
 
         if (isFirstUser === true) {
           return navigate("/register");
@@ -22,11 +24,25 @@ export function Home() {
         } else {
           return void 0;
         }
+      } else {
+        setError(result.error);
       }
+
+      setIsLoadingIsFirstUser(false);
     };
 
     firstUserReq();
   }, [isFirstUser]);
 
-  return <div className="App">Home</div>;
+  if (isLoadingFirstUser) {
+    return <div className="App">Loading...</div>;
+  } else {
+    return (
+      <div className="App">
+        Home
+        <div>{`${isLoadingFirstUser} ${isFirstUser}`}</div>
+        <div>{error?.stack}</div>
+      </div>
+    );
+  }
 }

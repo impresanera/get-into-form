@@ -6,16 +6,12 @@
   "functions": [
     {
       "source": "functions",
-      "codebase": "default",
       "ignore": [
         "node_modules",
         ".git",
         "firebase-debug.log",
-        "firebase-debug.*.log"
-      ],
-      "predeploy": [
-        "npm --prefix \"$RESOURCE_DIR\" run lint",
-        "npm --prefix \"$RESOURCE_DIR\" run build"
+        "firebase-debug.*.log",
+        ".runtimeconfig.json"
       ]
     }
   ],
@@ -39,9 +35,9 @@
   },
   "hosting": [
     {
-      "public": "hosting/app/dist",
+      "public": "hosting/dist",
       "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
-      "target": "get-into-form",
+      "target": "impresaner-forms",
       "rewrites": [
         {
           "source": "**",
@@ -50,9 +46,9 @@
       ]
     },
     {
-      "public": "hosting/app/dist",
+      "public": "hosting/dist",
       "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
-      "target": "get-into-form-stg",
+      "target": "impresaner-forms-stg",
       "rewrites": [
         {
           "source": "**",

@@ -1,3 +1,5 @@
+import { functions } from "./firebase";
+
 const env = {
   development: "dev",
   staging: "stg",
@@ -5,8 +7,20 @@ const env = {
   testing: "uat", // user assertion test
 } as const;
 
-export const appendEnv = <T extends string>(
-  str: T
-): `${T}_${typeof env[typeof process.env.NODE_ENV]}` => {
+type ENV = typeof env;
+type EnvKeys = ENV[keyof ENV];
+
+export const appendEnv = <T extends string>(str: T): `${T}_${EnvKeys}` => {
   return `${str}_${env[process.env.NODE_ENV]}`;
+};
+
+export const runInEnv = <T>(envKey: EnvKeys, fn: T) => {
+  if (envKey === env[process.env.NODE_ENV]) {
+    return fn;
+  } else {
+    return () => {
+      functions.logger.info("Something went wrong");
+      throw new Error("mismatch environment");
+    };
+  }
 };

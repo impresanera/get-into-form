@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "emulators:start": "firebase emulators:start --only functions,firestore,hosting,auth"
+    "emulators:start": "NODE_ENV=development firebase emulators:start --only functions:api_dev,firestore,hosting,auth"
   },
   "repository": {
     "type": "git",
@@ -15,7 +15,5 @@
   "bugs": {
     "url": "https://github.com/micaiah-effiong/get-into-form/issues"
   },
-  "homepage": "https://github.com/micaiah-effiong/get-into-form#readme",
-  "dependencies": {},
-  "devDependencies": {}
+  "homepage": "https://github.com/micaiah-effiong/get-into-form#readme"
 }

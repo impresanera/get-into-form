@@ -1,5 +1,5 @@
-const env = import.meta.env;
-export const config = env; // as const;
+export const config = import.meta.env; // as const;
+
 const envStruct = {
   development: "dev",
   staging: "stg",

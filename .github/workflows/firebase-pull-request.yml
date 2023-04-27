@@ -15,26 +15,44 @@ jobs:
         with:
           node-version: 16.x
 
+      - name: Bundle shared lib
+        working-directory: shared
+        run: |
+          echo *** INSTALLING deps ***
+          npm ci
+
+          echo *** BUILDING PACKAGE ***
+          npm run build
+
+          echo *** NPM PACK ***
+          npm pack
+
       - name: Download deps
         working-directory: functions
-        run: npm install
-
-      - name: Build cloud functions
-        working-directory: functions
-        run: npm run build
+        run: npm ci
 
       - name: Create SA key
         run: echo '${{ secrets.FIREBASE_SERVICE_ACCOUNT_GET_INTO_FORM }}' > $HOME/gcloud.json
 
       - name: Deploy Cloud Functions
-        run: export GOOGLE_APPLICATION_CREDENTIALS=$HOME/gcloud.json && npx firebase-tools deploy --only functions:api_uat --json
-        env:
-          NODE_ENV: testing
+        run: |
+          export GOOGLE_APPLICATION_CREDENTIALS=$HOME/gcloud.json
 
-      # - name: Deploy
-      #   run: npx firebase-tools deploy --only functions:api_uat
-      #   env:
-      #     FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+          cd functions
+
+          npm ci
+          npm run lint
+
+          mv ../shared/shared-1.0.0.tgz shared-1.0.0.tgz
+
+          npm install shared-1.0.0.tgz
+          npm run build
+
+          cd ..
+
+          echo NODE_ENV=testing > functions/.env
+          mkdir -p functions/lib/.env
+          NODE_ENV=testing npx firebase-tools deploy --only functions:api_uat
 
   build_and_deploy_hosting_on_pr:
     if: "${{ github.event.pull_request.head.repo.full_name == github.repository }}"
@@ -42,16 +60,28 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
+      - name: Bundle shared lib
+        working-directory: shared
+        run: |
+          echo *** INSTALLING deps ***
+          npm ci
+
+          echo *** BUILDING PACKAGE ***
+          npm run build
+
+          echo *** NPM PACK ***
+          npm pack
+
       - name: Install dependencies
-        working-directory: hosting/app
+        working-directory: hosting
         run: npm ci
 
       - name: Build
-        working-directory: hosting/app
+        working-directory: hosting
         run: npm run build:uat
 
       - uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           repoToken: "${{ secrets.GITHUB_TOKEN }}"
           firebaseServiceAccount: "${{ secrets.FIREBASE_SERVICE_ACCOUNT_GET_INTO_FORM }}"
-          projectId: get-into-form
+          projectId: impresaner-forms

@@ -1,7 +1,7 @@
 import * as functions from "firebase-functions";
-import * as express from "express";
+import express from "express";
 import type { Response, Request, NextFunction } from "express";
-import * as cors from "cors";
+import cors from "cors";
 
 const app = express();
 
