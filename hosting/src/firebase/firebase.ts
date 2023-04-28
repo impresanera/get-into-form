@@ -84,7 +84,6 @@ export async function emailPasswordLogin(
 ): Promise<Result<Auth.User, FirebaseError>> {
   try {
     const res = await Auth.signInWithEmailAndPassword(auth, email, password);
-    console.log({ res });
 
     return {
       ok: true,
@@ -97,8 +96,8 @@ export async function emailPasswordLogin(
 
 export async function signOut(): Promise<Result<null, FirebaseError>> {
   try {
-    const res = await Auth.signOut(auth);
-    console.log({ res });
+    await Auth.signOut(auth);
+
     return {
       ok: true,
       value: null,
